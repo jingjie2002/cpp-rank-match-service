@@ -1,7 +1,9 @@
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 
+#include "cache/redis_ranking_cache.h"
 #include "match/match_manager.h"
 #include "protocol/command_dispatcher.h"
 #include "ranking/ranking_board.h"
@@ -28,6 +30,20 @@ int main(int argc, char* argv[]) {
   }
 
   rankmatch::ranking::RankingBoard ranking_board(repository);
+  auto ranking_cache = std::make_unique<rankmatch::cache::RedisRankingCache>(
+      "127.0.0.1", 6379, "cpp-rank-match:rank:global");
+  ranking_board.set_cache(ranking_cache.get());
+
+  std::string cache_error;
+  if (ranking_cache->connect(&cache_error)) {
+    if (!ranking_board.rebuild_cache(&cache_error)) {
+      std::cerr << "warning: redis connected but cache rebuild failed: " << cache_error << '\n';
+    }
+  } else {
+    std::cerr << "warning: redis unavailable, ranking will fallback to sqlite: " << cache_error
+              << '\n';
+  }
+
   rankmatch::match::MatchManager match_manager(repository, ranking_board);
   if (!match_manager.load_pending_matches(&error)) {
     std::cerr << "failed to load pending matches: " << error << '\n';
@@ -38,6 +54,8 @@ int main(int argc, char* argv[]) {
 
   std::cout << "cpp-rank-match-service started" << '\n';
   std::cout << "db_path=" << db_path.string() << '\n';
+  std::cout << "redis_rank_cache=" << (ranking_cache->available() ? "enabled" : "fallback-sqlite")
+            << '\n';
   std::cout << "type HELP to show available commands" << '\n';
 
   std::string line;

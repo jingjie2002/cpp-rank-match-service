@@ -183,6 +183,13 @@ std::string CommandDispatcher::handle_command(const std::string& line) {
     return out.str();
   }
 
+  if (cmd == "REBUILD_RANK_CACHE") {
+    if (!ranking_board_.rebuild_cache(&error)) {
+      return "ERR " + error;
+    }
+    return "OK REBUILD_RANK_CACHE";
+  }
+
   if (cmd == "SETTLE_SEASON") {
     int season = 0;
     int reward_count = 0;
@@ -262,6 +269,7 @@ std::string CommandDispatcher::help_text() {
       "  FINISH_MATCH <match_id> <winner_id>\n"
       "  TOP <n>\n"
       "  RANK <player_id>\n"
+      "  REBUILD_RANK_CACHE\n"
       "  SETTLE_SEASON\n"
       "  LIST_REWARDS <player_id>\n"
       "  CLAIM_REWARD <player_id> <reward_id>\n"

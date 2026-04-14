@@ -144,6 +144,8 @@ std::optional<model::ScoreDelta> MatchManager::finish_match(int match_id,
     return std::nullopt;
   }
 
+  ranking_board_.refresh_player_cache(winner_id);
+  ranking_board_.refresh_player_cache(loser_id);
   pending_matches_.erase(pending_it);
   return delta;
 }
