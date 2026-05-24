@@ -120,6 +120,9 @@ python .\scripts\demo_flow.py .\build-ninja\cpp-rank-match-service.exe
 4. 查询排行榜。
 5. 生成赛季奖励。
 6. 查询并领取奖励。
+7. 再次领取同一奖励并验证失败。
+
+更多验证说明见：[Verification](docs/verification.md)。
 
 ## 规则说明
 
