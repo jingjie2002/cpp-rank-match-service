@@ -82,9 +82,40 @@ claimed=YES
 
 If any fragment is missing, `demo_flow.py` exits with a non-zero status.
 
+## SQLite State Check
+
+After running the demo, the generated SQLite database is:
+
+```text
+data/demo.db
+```
+
+The database should contain:
+
+- `players`: four players with updated scores.
+- `matches`: two finished matches.
+- `seasons`: one settled season.
+- `rewards`: three reward rows.
+
+Observed reward state after the demo:
+
+```text
+reward_id=1, player_id=p4, rank_no=1, reward_coin=300, claimed=1
+reward_id=2, player_id=p3, rank_no=2, reward_coin=200, claimed=0
+reward_id=3, player_id=p2, rank_no=3, reward_coin=100, claimed=0
+```
+
+This confirms that the first reward was claimed once, and the second claim attempt did not create a duplicate successful claim.
+
 ## Current Boundaries
 
 - The service is a command-line demo service, not a network gateway.
 - Redis is used as an optional ranking cache. SQLite remains the data source for players, matches, seasons, and reward claim state.
 - The match queue is intentionally simple and exists to produce match results for ranking and reward verification.
 - The project does not implement full battle logic, account authentication, payment, inventory, or production deployment.
+
+## Not Covered In This Verification
+
+- Linux build was not run in the current Windows environment because WSL has no installed distribution and no local `g++` / `clang++` compiler was available.
+- Redis unavailable fallback was not run as a separate scenario because the local Redis service was available during verification.
+- C++ unit tests are not included yet; the current verification is based on build + scripted demo + SQLite state inspection.
